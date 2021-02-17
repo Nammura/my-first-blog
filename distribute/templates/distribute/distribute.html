@@ -1,0 +1,25 @@
+{% load static %}
+
+<html lang="ja" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>{{title}}</title>
+  </head>
+  <body>
+    <h1>{{title}}</h1>
+    <table>
+      <form action="{% url 'distribute' %}" method="post">
+        {% csrf_token %}
+        {{PlayerForm}}
+        {{DistributeForm}}
+        <tr>
+          <td></td><td><input type="submit" name="" value="出力"></td>
+        </tr>
+      </form>
+    </table>
+    {% for i in distText %}
+        <p>{{i}}</p>
+    {% endfor %}
+
+  </body>
+</html>
