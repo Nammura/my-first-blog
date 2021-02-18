@@ -4,21 +4,32 @@
   <head>
     <meta charset="utf-8">
     <title>{{title}}</title>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="{% static 'css/distribute.css' %}">
   </head>
   <body>
     <h1>{{title}}</h1>
     <table>
       <form action="{% url 'distribute' %}" method="post">
         {% csrf_token %}
-        {{PlayerForm}}
-        {{DistributeForm}}
+        <p id="PlayerForm">{% for field in PlayerForm %}
+            <div>
+                {% for r in field %}
+                    {{ r }}
+                {% endfor %}
+            </div>
+        {% endfor %}</p>
+        
+        <p id="DistributeForm">{{DistributeForm}}</p>
+      
         <tr>
-          <td></td><td><input type="submit" name="" value="出力"></td>
+          <td></td><td><input id="btn" type="submit" name="" value="出力"></td>
         </tr>
       </form>
     </table>
     {% for i in distText %}
-        <p>{{i}}</p>
+        <p id="output">{{i}}</p>
     {% endfor %}
 
   </body>

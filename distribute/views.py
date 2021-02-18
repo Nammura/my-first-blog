@@ -7,6 +7,7 @@ from django.template.context_processors import csrf
 
 import re
 import random
+import pandas as pd
 
 def distribute(request):
     #parameterの定義
@@ -232,6 +233,7 @@ def distribute(request):
                                 xDict[i]["中学数学"] = EachDict[i]
                                 JrMathDelta += xDict[i]["中学数学"]
                             qNumber["中学数学"] -= JrMathDelta
+                            qNumber["英語"] = 0
 
                         #分岐1-2 文系の枠を英語で埋め切れるパターン
                         else:
@@ -247,8 +249,14 @@ def distribute(request):
                                 xDict[humanitiesPlus[i]]["中学数学"] = EachDict[humanitiesPlus[i]] - xDict[humanitiesPlus[i]]["英語"]
                                 JrMathDelta += xDict[humanitiesPlus[i]]["中学数学"]
                             qNumber["中学数学"] -= JrMathDelta
+                            qNumber["英語"] = 0
 
-                        total -= qNumber["英語"] + qNumber["中学数学"]
+                        total = 0
+                        for i in subjectList:
+                            total += qNumber[i]
+                        HumanitiesCapa = 0
+                        for i in Humanities:
+                            HumanitiesCapa += EachDict[i]
                         for i in range(len(Science)):
                             EachDict[Science[i]] = Dist(total, len(Science))[i]
 
@@ -305,11 +313,131 @@ def distribute(request):
                         for j in range(len(ScienceSubjectDict[i])):
                             xDict[ScienceSubjectDict[i][j]][i] = dist[j]
                         
+                    minus = 0
                     for i in Science:
                         Delta = 0
                         for j in ScienceSubject:
                             Delta += xDict[i][j]
                         xDict[i]["高校数学"] = EachDict[i] - Delta
+                        if Delta > EachDict[i]:
+                            minus = 1
+                    
+                    #負の割り振りがある場合の対処、問題ありと問題なしのグループに分ける
+                    if minus == 1:
+                        noProblem = []
+                        Problem = []
+                        for i in Science:
+                            if xDict[i]["高校数学"] < 0:
+                                Problem.append(i)
+                            else:
+                                noProblem.append(i)
+                        #問題ありの情報をまとめる
+                        problemLength = []
+                        problemSubject = []
+                        for person in Problem:
+                            length = 0
+                            sub = []
+                            for subject in ScienceSubject:
+                                if person in ScienceSubjectDict[subject]:
+                                    length += 1
+                                    sub.append(subject)
+
+                            problemLength.append(length)
+                            problemSubject.append(sub)
+                        problemDict = {'問題者':Problem, '対応科目数':problemLength, '対応科目':problemSubject}
+                        problemDf = pd.DataFrame.from_dict(problemDict)
+                        problemDf.sort_values('対応科目数', inplace=True)
+                        problemDf.reset_index(drop=True,inplace=True)
+
+                        #問題なしの情報をまとめる
+                        noProblemLength = []
+                        noProblemSubject = []
+                        for person in noProblem:
+                            length = 0
+                            sub = []
+                            for subject in ScienceSubject:
+                                if person in ScienceSubjectDict[subject]:
+                                    length += 1
+                                    sub.append(subject)
+
+                            noProblemLength.append(length)
+                            noProblemSubject.append(sub)
+                        noProblemDict = {'無問題者':noProblem, '対応科目数':noProblemLength, '対応科目':noProblemSubject}
+                        noProblemDf = pd.DataFrame.from_dict(noProblemDict)
+                        noProblemDf.sort_values('対応科目数', inplace=True)
+                        noProblemDf.reset_index(drop=True,inplace=True)
+
+
+                        #問題あり一人一人に対し処理をする
+                        for i in problemDf.index:
+                            co = []
+                            for j in noProblemDf.index:
+                                co.append([])
+                            noProblemDf['共通科目'] = co
+                            for j in noProblemDf.index:
+                                for subject in noProblemDf['対応科目'][j]:
+                                    if subject in problemDf['対応科目'][i]:
+                                        noProblemDf['共通科目'][j].append(subject)
+                            index = []
+                            for j in noProblemDf.index:
+                                if noProblemDf['共通科目'][j] != []:
+                                    index.append(j)
+                
+
+
+                            for j in noProblemDf.index:
+                                if  (xDict[problemDf['問題者'][i]]['高校数学'] == 0):
+                                    break
+                                else:
+
+                                    for subject in noProblemDf['共通科目'][j]:
+                                        if  (xDict[problemDf['問題者'][i]]['高校数学'] == 0):
+                                            break
+                                        else:
+
+                                            for k in range(xDict[noProblemDf['無問題者'][j]]['高校数学']):
+                                                if (xDict[problemDf['問題者'][i]]['高校数学'] == 0) or (xDict[problemDf['問題者'][i]][subject] == 0):
+                                                    break
+                                                else:
+                                                    xDict[problemDf['問題者'][i]]['高校数学'] += 1
+                                                    xDict[noProblemDf['無問題者'][j]]['高校数学'] -=1
+                                                    xDict[problemDf['問題者'][i]][subject] -= 1
+                                                    xDict[noProblemDf['無問題者'][j]][subject] +=1
+                                                    
+                        #それでもマイナスがある場合の最終処理
+                        while True:
+                            plus = []
+                            minus = []
+                            zero = []
+                            for person in Science:
+                                if xDict[person]["高校数学"] < 0:
+                                    minus.append(person)
+                                elif xDict[person]["高校数学"] > 0:
+                                    plus.append(person)
+                                else:
+                                    zero.append(person)
+
+                            if minus == []:
+                                break
+
+                            else:
+                                random.shuffle(plus)
+
+                                totalMinus = 0
+                                for person in minus:
+                                    totalMinus -= xDict[person]["高校数学"]
+                                    xDict[person]["高校数学"] = 0
+
+                                minusDist = Dist(totalMinus,len(plus))
+                                for i in range(len(minusDist)):
+                                    xDict[plus[i]]['高校数学'] -= minusDist[i]
+                                        
+                                    
+                            
+                                    
+
+                            
+                    
                     
                     sentence = []
                     for i in people:

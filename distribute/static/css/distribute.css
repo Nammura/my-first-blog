@@ -1,1 +1,31 @@
+h1 {
+margin: 50px 0px
+}
 
+#id_distText {
+    width: 500px;
+    height: 280px;
+    margin: auto;
+    font-size: 15px;
+}
+
+#id_player {
+    margin: 50px 0px
+}
+
+#PlayerForm {
+    margin: 30px
+}
+
+#output {
+    margin-bottom: 0px;
+    font-size: 15px;
+}
+
+#btn {
+    margin-bottom:30px;
+}
+
+body{
+    padding-left: 150px;
+}
