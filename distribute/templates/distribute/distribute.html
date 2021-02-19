@@ -11,6 +11,8 @@
   <body>
     <h1>{{title}}</h1>
     <table>
+       <p><a href="{% url 'admin:distribute_daytoday_changelist' %}">曜日設定を変更</a></p>
+        <p><a href="{% url 'admin:index' %}">管理画面</a></p>
       <form action="{% url 'distribute' %}" method="post">
         {% csrf_token %}
         <p id="PlayerForm">{% for field in PlayerForm %}
@@ -31,6 +33,8 @@
     {% for i in distText %}
         <p id="output">{{i}}</p>
     {% endfor %}
+    
+
 
   </body>
 </html>

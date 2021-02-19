@@ -1,6 +1,8 @@
 from django.shortcuts import render, render_to_response
 from .forms import DistributeForm
 from .forms import PlayerForm
+from .models import (Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday)
+from .models import Daytoday
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.template.context_processors import csrf
 
@@ -8,35 +10,60 @@ from django.template.context_processors import csrf
 import re
 import random
 import pandas as pd
+import datetime
 
 def distribute(request):
     #parameterの定義
-    params = {'distText':'', 'title': '割り振り', 'DistributeForm':DistributeForm(), 'PlayerForm': PlayerForm(), }
+    params = {'distText':'', 'title': '割り振り', 'DistributeForm':DistributeForm(), 'PlayerForm':PlayerForm(), }
+    
+    
+
+    #曜日の取得(モデル優先)
+    week_num = 0
+    x = 0
+    if Daytoday.objects.all()[0].days in [['1'],['2'],['3'],['4'],['5'],['6'],['7']]:
+        week_num = int(((Daytoday.objects.all())[0].days)[0])
+        week_num += 5
+        week_num = week_num % 7
+    else:
+        week_num = datetime.date.today().weekday()
+    
+    
+    #該当曜日モデルの全てのオブジェクトをregistersに格納
+    if week_num == 6:
+        registers = Sunday.objects.all()
+    elif week_num == 0:
+        registers = Monday.objects.all()
+    elif week_num == 1:
+        registers = Tuesday.objects.all()
+    elif week_num == 2:
+        registers = Wednesday.objects.all()
+    elif week_num == 3:
+        registers = Thursday.objects.all()
+    elif week_num == 4:
+        registers = Friday.objects.all()
+    else:
+        registers = Saturday.objects.all()
+        
+    
     #選択肢の定義
     choice1 = []
-    choice1.append(('1','なぎ'))
-    choice1.append(('2','いとたく'))
-    choice1.append(('3','かなちゃん'))
-    choice1.append(('4','おっくん'))
-    choice1.append(('5','たいせい'))
-    choice1.append(('6','もりりん'))
+    choiceDict = {}
+    for i in range(len(registers)):
+        choice1.append((str(i+1),registers[i].member_name))
+        choiceDict[str(i+1)] = registers[i].member_name
     
-    choiceDict ={}
-    choiceDict['1'] = 'なぎ'
-    choiceDict['2'] = 'いとたく'
-    choiceDict['3'] = 'かなちゃん'
-    choiceDict['4'] = 'おっくん'
-    choiceDict['5'] = 'たいせい'
-    choiceDict['6'] = 'もりりん'
-
+  
     #入力があるかないかの分岐
     if request.method == 'POST':
     
         #DistributeFormの値を取得
         distText = request.POST['distText']
         
+                
+    
         #PlayerFormの値を取得
-        listret = request.POST.getlist("player")
+        listret = request.POST.getlist('player')
         
     
         #その日の対応者の取得
@@ -44,20 +71,33 @@ def distribute(request):
         for i in listret:
             activePlayer.append(choiceDict[i])
         
-        #subjectListの定義
+        #全科目と理系科目の定義
         subjectList = ["英語", "中学数学", "高校数学", "化学", "物理", "中学理科"]
+        ScienceSubject = ["高校数学", "中学数学", "物理", "化学", "中学理科"]
         
         #入力が適切かどうかの分岐
         if (len(re.findall(r"\d+", distText)) != len(subjectList)) and (len(re.findall(r"\d+", distText)) != len(subjectList) + 1):
             params['distText'] = ['入力が不適切です。']
             params['DistributeForm'] = DistributeForm(request.POST)
             params['PlayerForm'] = PlayerForm(request.POST)
+            params['WeekForm'] = WeekForm(request.POST)
             
         else:
             #文系、文系プラス、理系の分類
-            humanitiesDefault = ["なぎ"]
-            humanitiesPlusDefault = ["いとたく"]
-            ScienceDefault = [ "もりりん", "おっくん", "かなちゃん", "たいせい"]
+            humanitiesDefault = []
+            humanitiesPlusDefault = []
+            ScienceDefault = []
+            
+            science_or_humanities = []
+            
+            for register in registers:
+                if register.science_or_humanities == ['1']:
+                    humanitiesDefault.append(register.member_name)
+                elif register.science_or_humanities == ['2']:
+                    humanitiesPlusDefault.append(register.member_name)
+                else:
+                    ScienceDefault.append(register.member_name)
+                
             
             #その日の対応者の分類
             humanities = []
@@ -84,14 +124,19 @@ def distribute(request):
             n = len(people)
 
             #各々の対応科目を定義
-            moririnRange = [["中学数学", "高校数学"], ["中学数学", "高校数学"]]
-            okkunRange = [["高校数学", "物理" , "中学数学"], ["高校数学", "物理" , "中学数学", "化学", "中学理科"]]
-            taiseiRange = [ ["高校数学", "物理" , "中学数学", "化学", "中学理科"],  ["高校数学", "物理" , "中学数学", "化学", "中学理科"]]
-            kanachanRange = [ ["高校数学", "化学", "中学理科"],  ["高校数学", "化学", "中学理科", "中学数学"]]
-            ScienceRangeDict = {"もりりん":moririnRange, "おっくん":okkunRange, "たいせい":taiseiRange, "かなちゃん":kanachanRange}
+            ScienceRangeDict = {}
+            SubjectSelectDict = {'中学数学':'1', '物理':'2', '化学':'3', '中学理科':'4', '高校数学':'0'}
+            for register in registers:
+                patternList = [[],[]]
+                for subject in ScienceSubject:
+                    if SubjectSelectDict[subject] not in register.only_for_science_menber_impossible_subject:
+                        patternList[1].append(subject)
+                        if SubjectSelectDict[subject] not in register.only_for_science_menber_no_good_subject:
+                            patternList[0].append(subject)
+                ScienceRangeDict[register.member_name] = patternList
+                    
 
-            #理系科目の定義と、その科目に対応できる人のリスト
-            ScienceSubject = ["高校数学", "中学数学", "物理", "化学", "中学理科"]
+            #理系科について、その科目に対応できる人のリスト
             ScienceSubjectDict = {"高校数学":[], "中学数学":[], "物理":[], "化学":[], "中学理科":[]}
 
             #その日の理系対応者
@@ -121,6 +166,7 @@ def distribute(request):
                 errorMessage = errorMessage.rstrip('、')
                 errorMessage += 'の対応者がいません。'
                 
+                #フォームの保持
                 params['distText'] = [errorMessage]
                 params['DistributeForm'] = DistributeForm(request.POST)
                 
@@ -128,6 +174,7 @@ def distribute(request):
                 form.fields['player'].choices = choice1
                 form.fields['player'].initial = listret
                 params['PlayerForm'] = form
+                params['registers'] = registers
              
             #対応者が0の教科がないとき、割り振り開始
             else:
@@ -468,10 +515,18 @@ def distribute(request):
 
 
     else:
+        #対応者フォーム
         form = PlayerForm()
         form.fields['player'].choices = choice1
-        form.fields['player'].initial = ['1','2','3','4','5','6']
+        ini = []
+        for i in range(len(choice1)):
+            ini.append(str(i+1))
+        form.fields['player'].initial = ini
         params['PlayerForm'] = form
+        
+        
+        
+
         # CFRF対策（必須）
         params.update(csrf(request))
 

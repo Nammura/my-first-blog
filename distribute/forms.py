@@ -14,3 +14,4 @@ class PlayerForm(forms.Form):
         disabled = False,
         widget = forms.CheckboxSelectMultiple(attrs={'id': 'player','class': 'form-checker-input'}))
 
+
