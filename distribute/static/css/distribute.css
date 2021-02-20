@@ -1,31 +1,101 @@
-h1 {
-margin: 50px 0px
+body{
+    padding-left: 0px;
 }
+
+.page-header {
+    background-color: #0B829B;
+    margin-top: 0;
+    padding: 30px 20px 10px 150px;
+}
+
+.page-header h1, .page-header h1 a, .page-header h1 a :visited, .page-header h1 a:active{
+    color: #ffffff;
+    font-size: 36pt;
+    text-decoration: none;
+}
+
+.page-header h2, .page-header h2 a, .page-header h2 a :visited, .page-header h2 a:active{
+    color: #ffffff;
+    font-size: 15pt;
+    text-decoration: none;
+}
+
+
+
+h2 {
+    margin: 0px 0px 0px 1000px;
+    font-size: 15pt;
+    
+}
+
+
+
+h3 {
+    font-size:15pt;
+    margin: 0px 0px 0px 150px;
+}
+
+
+h1 {
+margin: 0px 0px;
+}
+
+form {
+    padding-left:150;
+}
+
+
 
 #id_distText {
     width: 500px;
-    height: 280px;
+    height: 250px;
     margin: auto;
     font-size: 15px;
 }
 
-#id_player {
-    margin: 50px 0px
-}
 
 #PlayerForm {
-    margin: 30px
+    margin: 20px;
 }
 
 #output {
     margin-bottom: 0px;
+    margin-left: 150;
     font-size: 15px;
 }
 
 #btn {
-    margin-bottom:30px;
+    margin-bottom:10px;
+    color: #ffffff;
+    background-color: #0B829B;
+    font-size: 20px;
+    padding: 10px 20px;
+    -moz-border-radius: 15px;
+    -webkit-border-radius: 15px;
+    border-radius: 15px;
+    border-style: none;
+
 }
 
-body{
-    padding-left: 150px;
+#changebtn {
+    margin-bottom:10px;
+    color: #ffffff;
+    background-color: #0B829B;
+    font-size: 15px;
+    padding: 5px 20px;
+    -moz-border-radius: 15px;
+    -webkit-border-radius: 15px;
+    border-radius: 15px;
+    border-style: none;
+
+}
+
+h3  button {
+    margin: 20px 10px;
+
+}
+
+
+input[type=checkbox]:checked + .checkbox{
+    background: #0B829B;
 }

@@ -1,18 +1,24 @@
 {% load static %}
 
+
 <html lang="ja" dir="ltr">
   <head>
     <meta charset="utf-8">
     <title>{{title}}</title>
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+    <link href="//fonts.googleapis.com/css?family=Lobster&subset=latin,latin-ext" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="{% static 'css/distribute.css' %}">
   </head>
   <body>
-    <h1>{{title}}</h1>
-    <table>
-       <p><a href="{% url 'admin:distribute_daytoday_changelist' %}">曜日設定を変更</a></p>
-        <p><a href="{% url 'admin:index' %}">管理画面</a></p>
+    <div class="page-header">
+        <h1><a href="/">{{title}}</a></h1>
+        <h2><a class="admin" href="{% url 'admin:index' %}">チーム情報の編集</a></h2>
+    </div>
+    <div class="day">
+        <h3>現在のチーム: {{team}}<button id="changebtn" type="button" onclick="location.href='{% url 'admin:distribute_daytoday_change' pk %}'">変更</a></h3>
+    </div>
+    <div class="form">
       <form action="{% url 'distribute' %}" method="post">
         {% csrf_token %}
         <p id="PlayerForm">{% for field in PlayerForm %}
@@ -30,11 +36,14 @@
         </tr>
       </form>
     </table>
+    </div>
+    <div>
     {% for i in distText %}
         <p id="output">{{i}}</p>
     {% endfor %}
-    
+    </div>
 
 
   </body>
 </html>
+

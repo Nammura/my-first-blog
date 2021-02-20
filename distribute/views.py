@@ -7,16 +7,19 @@ from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.template.context_processors import csrf
 
 
+
 import re
 import random
 import pandas as pd
 import datetime
 
+
 def distribute(request):
     #parameterの定義
-    params = {'distText':'', 'title': '割り振り', 'DistributeForm':DistributeForm(), 'PlayerForm':PlayerForm(), }
+    params = {'distText':'', 'title': '割り振り', 'DistributeForm':DistributeForm(), 'PlayerForm':PlayerForm(), 'team':'', 'pk':''}
     
-    
+    #Daytodayモデルのpkを取得
+    pk = Daytoday.objects.all()[0].pk
 
     #曜日の取得(モデル優先)
     week_num = 0
@@ -27,6 +30,18 @@ def distribute(request):
         week_num = week_num % 7
     else:
         week_num = datetime.date.today().weekday()
+    
+    #対応チームの取得
+    teamDict = {
+        0:'月曜チーム',
+        1:'火曜チーム',
+        2:'水曜チーム',
+        3:'木曜チーム',
+        4:'金曜チーム',
+        5:'土曜チーム',
+        6:'日曜チーム'
+    }
+    team = teamDict[week_num]
     
     
     #該当曜日モデルの全てのオブジェクトをregistersに格納
@@ -81,6 +96,8 @@ def distribute(request):
             params['DistributeForm'] = DistributeForm(request.POST)
             params['PlayerForm'] = PlayerForm(request.POST)
             params['WeekForm'] = WeekForm(request.POST)
+            params['team'] = team
+            params['pk'] = pk
             
         else:
             #文系、文系プラス、理系の分類
@@ -175,6 +192,8 @@ def distribute(request):
                 form.fields['player'].initial = listret
                 params['PlayerForm'] = form
                 params['registers'] = registers
+                params['team'] = team
+                params['pk'] = pk
              
             #対応者が0の教科がないとき、割り振り開始
             else:
@@ -512,6 +531,8 @@ def distribute(request):
                 form.fields['player'].choices = choice1
                 form.fields['player'].initial = listret
                 params['PlayerForm'] = form
+                params['team'] = team
+                params['pk'] = pk
 
 
     else:
@@ -523,7 +544,8 @@ def distribute(request):
             ini.append(str(i+1))
         form.fields['player'].initial = ini
         params['PlayerForm'] = form
-        
+        params['team'] = team
+        params['pk'] = pk
         
         
 
