@@ -39,7 +39,7 @@ dayDict = {
 
 
 class Sunday(models.Model):
-    member_name = models.CharField('名前',max_length=15)
+    member_name = models.CharField('名前',max_length=10)
     science_or_humanities = MultiSelectField('文理',choices = choice1)
     only_for_science_menber_impossible_subject = MultiSelectField('対応不可能な科目',choices = choice2,blank = True)
     only_for_science_menber_no_good_subject = MultiSelectField('対応を控えたい科目',choices = choice2, blank = True)
@@ -52,7 +52,7 @@ class Sunday(models.Model):
         verbose_name_plural = '(a) 日曜チーム'
         
 class Monday(models.Model):
-    member_name = models.CharField('名前',max_length=15)
+    member_name = models.CharField('名前',max_length=10)
     science_or_humanities = MultiSelectField('文理',choices = choice1)
     only_for_science_menber_impossible_subject = MultiSelectField('対応不可能な科目',choices = choice2,blank = True)
     only_for_science_menber_no_good_subject = MultiSelectField('対応を控えたい科目',choices = choice2, blank = True)
@@ -65,7 +65,7 @@ class Monday(models.Model):
         verbose_name_plural = '(b) 月曜チーム'
         
 class Tuesday(models.Model):
-    member_name = models.CharField('名前',max_length=15)
+    member_name = models.CharField('名前',max_length=10)
     science_or_humanities = MultiSelectField('文理',choices = choice1)
     only_for_science_menber_impossible_subject = MultiSelectField('対応不可能な科目',choices = choice2,blank = True)
     only_for_science_menber_no_good_subject = MultiSelectField('対応を控えたい科目',choices = choice2, blank = True)
@@ -78,7 +78,7 @@ class Tuesday(models.Model):
         verbose_name_plural = '(c) 火曜チーム'
         
 class Wednesday(models.Model):
-    member_name = models.CharField('名前',max_length=15)
+    member_name = models.CharField('名前',max_length=10)
     science_or_humanities = MultiSelectField('文理',choices = choice1)
     only_for_science_menber_impossible_subject = MultiSelectField('対応不可能な科目',choices = choice2,blank = True)
     only_for_science_menber_no_good_subject = MultiSelectField('対応を控えたい科目',choices = choice2, blank = True)
@@ -91,7 +91,7 @@ class Wednesday(models.Model):
         verbose_name_plural = '(d) 水曜チーム'
         
 class Thursday(models.Model):
-    member_name = models.CharField('名前',max_length=15)
+    member_name = models.CharField('名前',max_length=10)
     science_or_humanities = MultiSelectField('文理',choices = choice1)
     only_for_science_menber_impossible_subject = MultiSelectField('対応不可能な科目',choices = choice2,blank = True)
     only_for_science_menber_no_good_subject = MultiSelectField('対応を控えたい科目',choices = choice2, blank = True)
@@ -104,7 +104,7 @@ class Thursday(models.Model):
         verbose_name_plural = '(e) 木曜チーム'
         
 class Friday(models.Model):
-    member_name = models.CharField('名前',max_length=15)
+    member_name = models.CharField('名前',max_length=10)
     science_or_humanities = MultiSelectField('文理',choices = choice1)
     only_for_science_menber_impossible_subject = MultiSelectField('対応不可能な科目',choices = choice2,blank = True)
     only_for_science_menber_no_good_subject = MultiSelectField('対応を控えたい科目',choices = choice2, blank = True)
@@ -117,7 +117,7 @@ class Friday(models.Model):
         verbose_name_plural = '(f) 金曜チーム'
         
 class Saturday(models.Model):
-    member_name = models.CharField('名前',max_length=15)
+    member_name = models.CharField('名前',max_length=10)
     science_or_humanities = MultiSelectField('文理',choices = choice1)
     only_for_science_menber_impossible_subject = MultiSelectField('対応不可能な科目',choices = choice2,blank = True)
     only_for_science_menber_no_good_subject = MultiSelectField('対応を控えたい科目',choices = choice2, blank = True)

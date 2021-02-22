@@ -13,8 +13,119 @@ import random
 import pandas as pd
 import datetime
 
+#モデルのデフォルトを保存
+
+df = pd.read_csv('/Users/nakamurayuuta/djangogirls/distribute/static/csv/リスト.csv')
+
+    #未選択の補充
+df["文理"].fillna("",inplace=True)
+df["対応不可能な科目"].fillna("",inplace=True)
+df["対応を控えたい科目"].fillna("",inplace=True)
+
+    #文字列をリスト化
+la = []
+lb = []
+lc = []
+for i in df.index:
+    la.append(df['文理'][i].split(","))
+    lb.append(df['対応不可能な科目'][i].split(","))
+    lc.append(df['対応を控えたい科目'][i].split(","))
+df['文理'] = la
+df['対応不可能な科目'] = lb
+df['対応を控えたい科目'] = lc
+    
+    #文字列を数字キー化
+dic1 = {'文系':'1', '文系プラス':'2', '理系':'3', '':''}
+dic2 = {'中学数学':'1', '物理':'2', '化学':'3', '中学理科':'4', '':''}
+list1 = []
+list2 = []
+list3 = []
+for i in df.index:
+    l1 = []
+    l2 = []
+    l3 = []
+    for  sh in df['文理'][i]:
+        l1.append(dic1[sh])
+    for subject in df['対応不可能な科目'][i]:
+        l2.append(dic2[subject])
+    for subject in df['対応を控えたい科目'][i]:
+        l3.append(dic2[subject])
+    list1.append(l1)
+    list2.append(l2)
+    list3.append(l3)
+df['文理'] = list1
+df['対応不可能な科目'] = list2
+df['対応を控えたい科目'] = list3
+
+#曜日ごとにモデルのデフォルトを投稿
+Sunday.objects.all().delete()
+for i in df[df['曜日']=='日'].index:
+    Sunday.objects.create(
+        member_name = df['メンバー'][i],
+        science_or_humanities = df['文理'][i],
+        only_for_science_menber_impossible_subject = df['対応不可能な科目'][i],
+        only_for_science_menber_no_good_subject = df['対応を控えたい科目'][i],
+    )
+
+Monday.objects.all().delete()
+for i in df[df['曜日']=='月'].index:
+    Monday.objects.create(
+        member_name = df['メンバー'][i],
+        science_or_humanities = df['文理'][i],
+        only_for_science_menber_impossible_subject = df['対応不可能な科目'][i],
+        only_for_science_menber_no_good_subject = df['対応を控えたい科目'][i],
+    )
+    
+Tuesday.objects.all().delete()
+for i in df[df['曜日']=='火'].index:
+    Tuesday.objects.create(
+        member_name = df['メンバー'][i],
+        science_or_humanities = df['文理'][i],
+        only_for_science_menber_impossible_subject = df['対応不可能な科目'][i],
+        only_for_science_menber_no_good_subject = df['対応を控えたい科目'][i],
+    )
+
+Wednesday.objects.all().delete()
+for i in df[df['曜日']=='水'].index:
+    Wednesday.objects.create(
+        member_name = df['メンバー'][i],
+        science_or_humanities = df['文理'][i],
+        only_for_science_menber_impossible_subject = df['対応不可能な科目'][i],
+        only_for_science_menber_no_good_subject = df['対応を控えたい科目'][i],
+    )
+    
+Thursday.objects.all().delete()
+for i in df[df['曜日']=='木'].index:
+    Thursday.objects.create(
+        member_name = df['メンバー'][i],
+        science_or_humanities = df['文理'][i],
+        only_for_science_menber_impossible_subject = df['対応不可能な科目'][i],
+        only_for_science_menber_no_good_subject = df['対応を控えたい科目'][i],
+    )
+    
+Friday.objects.all().delete()
+for i in df[df['曜日']=='金'].index:
+    Friday.objects.create(
+        member_name = df['メンバー'][i],
+        science_or_humanities = df['文理'][i],
+        only_for_science_menber_impossible_subject = df['対応不可能な科目'][i],
+        only_for_science_menber_no_good_subject = df['対応を控えたい科目'][i],
+    )
+    
+Saturday.objects.all().delete()
+for i in df[df['曜日']=='土'].index:
+    Saturday.objects.create(
+        member_name = df['メンバー'][i],
+        science_or_humanities = df['文理'][i],
+        only_for_science_menber_impossible_subject = df['対応不可能な科目'][i],
+        only_for_science_menber_no_good_subject = df['対応を控えたい科目'][i],
+    )
+
+
 
 def distribute(request):
+
+
     #parameterの定義
     params = {'distText':'', 'title': '割り振り', 'DistributeForm':DistributeForm(), 'PlayerForm':PlayerForm(), 'team':'', 'pk':''}
     
@@ -90,14 +201,68 @@ def distribute(request):
         subjectList = ["英語", "中学数学", "高校数学", "化学", "物理", "中学理科"]
         ScienceSubject = ["高校数学", "中学数学", "物理", "化学", "中学理科"]
         
+        
+        #qNumber関数を定義 旧定義 数字の総数に左右されてしまう
+        def qNumber(text):
+            
+            number = re.findall(r"\d+", text)
+            if len(number) == len(subjectList) + 1:
+                number.pop(0)
+            for i in range(len(number)):
+                number[i] = int(number[i])
+            
+            index = []
+            for i in subjectList:
+                index.append(text.find(i))
+                
+            indexDict = {}
+            for i in range(len(index)):
+                indexDict[index[i]] = subjectList[i]
+                
+            index.sort()
+            
+            qNumberDict = {}
+            for i in range(len(index)):
+                qNumberDict[indexDict[index[i]]] = number[i]
+                
+            return qNumberDict
+        #qNumber関数を定義 新定義 数字の総数に左右されない
+        def qNumber(text):
+            sub_dict= {}
+            
+            text_list = text.splitlines()
+            for subject in subjectList:
+                for line in text_list:
+                    line = line.replace(" ","")
+                    line = line.replace("　","")
+                    num_list = re.findall(r"\d+",line)
+                    if len(num_list) == 1:
+                        num = num_list[0]
+                        if line == subject+num:
+                            sub_dict[subject] = int(num)
+            return sub_dict
+
         #入力が適切かどうかの分岐
-        if (len(re.findall(r"\d+", distText)) != len(subjectList)) and (len(re.findall(r"\d+", distText)) != len(subjectList) + 1):
-            params['distText'] = ['入力が不適切です。']
+        if len(qNumber(distText)) != len(subjectList):
+            q=qNumber(distText)
+            form = PlayerForm()
+            form.fields['player'].choices = choice1
+            ini = []
+            for i in range(len(choice1)):
+                ini.append(str(i+1))
+            form.fields['player'].initial = ini
+            params['distText'] = [
+            '入力が不適切です。以下のことを確認してください。',
+            '・教科名が英語、中学数学、高校数学、化学、物理、中学理科と正しく表記されていること',
+            '・6教科全てについて記述があること',
+            '・教科ごとに「教科名+問題数」という構成になっていること',
+            ]
             params['DistributeForm'] = DistributeForm(request.POST)
-            params['PlayerForm'] = PlayerForm(request.POST)
-            params['WeekForm'] = WeekForm(request.POST)
+            params['PlayerForm'] = form
             params['team'] = team
             params['pk'] = pk
+            
+            
             
         else:
             #文系、文系プラス、理系の分類
@@ -208,30 +373,7 @@ def distribute(request):
                         xDict[person][subject] = 0
                         
                         
-                #qNumber関数を定義
-                def qNumber(text):
-                    
-                    number = re.findall(r"\d+", text)
-                    if len(number) == len(subjectList) + 1:
-                        number.pop(0)
-                    for i in range(len(number)):
-                        number[i] = int(number[i])
-                    
-                    index = []
-                    for i in subjectList:
-                        index.append(text.find(i))
-                        
-                    indexDict = {}
-                    for i in range(len(index)):
-                        indexDict[index[i]] = subjectList[i]
-                        
-                    index.sort()
-                    
-                    qNumberDict = {}
-                    for i in range(len(index)):
-                        qNumberDict[indexDict[index[i]]] = number[i]
-                        
-                    return qNumberDict
+               
 
                 #Dist関数を定義
                 def Dist(num, n):
@@ -253,6 +395,7 @@ def distribute(request):
                 #テキストの定義
                 text = distText
                 qNumber = qNumber(text)
+                
 
                 #各人の対応数を格納するEachDictを定義
                 EachDict ={}

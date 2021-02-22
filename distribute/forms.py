@@ -1,12 +1,9 @@
 from django import forms
 
-
-
-
 class DistributeForm(forms.Form):
     distText = forms.CharField(
         label='',
-        max_length=200,
+        max_length=500,
         widget=forms.Textarea(attrs={'cols': '80', 'rows': '10'}))
     
     
