@@ -235,6 +235,8 @@ def distribute(request):
                 for line in text_list:
                     line = line.replace(" ","")
                     line = line.replace("　","")
+                    line = line.replace("   ","")
+                    line = line.replace(u'\xa0',"")
                     num_list = re.findall(r"\d+",line)
                     if len(num_list) == 1:
                         num = num_list[0]
@@ -649,11 +651,19 @@ def distribute(request):
                     
                     
                     sentence = []
+                    slangDict = {
+                        '英語':'英語',
+                        '中学数学':'中数',
+                        '高校数学':'高数',
+                         '物理':'物理',
+                         '化学':'化学',
+                         '中学理科':'中理',
+                            }
                     for i in people:
                         s = i + "　"
                         for j in subjectList:
                             if xDict[i][j] != 0:
-                                s += ( j + str(xDict[i][j])+"+")
+                                s += ( slangDict[j] + str(xDict[i][j])+"+")
                         s = s.rstrip("+")
                         sentence.append(s)
                         
